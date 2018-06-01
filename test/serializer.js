@@ -2509,18 +2509,31 @@ describe('JSON API Serializer', function () {
         'first-name': 'Brian',
         'last-name': 'Fink',
         gender: 'male',
+        pets: [{
+          id: '1',
+          name: 'Juice',
+          species: 'cat'
+        }]
       };
 
-      var req = { query: { fields: 'first-name,gender' } };
+      var req = { query: { fields: { users: 'first-name,gender,pets', pets:'name' } } };
 
       var json = new JSONAPISerializer('users', {
-        attributes: ['first-name', 'last-name', 'gender'],
+        attributes: ['first-name', 'last-name', 'gender', 'pets'],
+        pets: {
+          ref: 'id',
+          attributes: ['name']
+        }
 
       }).serialize(dataSet, req);
 
       expect(json.data).to.have.property('attributes').that.is
         .an('object')
         .eql({ 'first-name': 'Brian', gender: 'male' });
+
+      expect(json.included[0]).to.have.property('attributes').that.is
+        .an('object')
+        .eql({ name: 'Juice' });
 
       done(null, json);
     });
