@@ -1,6 +1,6 @@
 {
   "name": "jsonapi-sparsefield-serializer",
-  "version": "3.5.15",
+  "version": "3.5.16",
   "description": "A fork of jsonapi-serializer with sparse fieldset support",
   "main": "index.js",
   "scripts": {
