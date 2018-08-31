@@ -2538,4 +2538,85 @@ describe('JSON API Serializer', function () {
       done(null, json);
     });
   });
+
+  describe('optional included', function () {
+    it('should included all related resources when none are requested', function (done) {
+      var dataSet = {
+        id: '54735750e16638ba1eee59cb',
+        'first-name': 'Brian',
+        'last-name': 'Fink',
+        gender: 'male',
+        hobbies: [{
+          id: '1',
+          name: 'Snowboarding'
+        }],
+        pets: [{
+          id: '1',
+          name: 'Juice',
+          species: 'cat'
+        }],
+      };
+
+      var json = new JSONAPISerializer('users', {
+        attributes: ['first-name', 'last-name', 'gender', 'hobbies', 'pets'],
+        hobbies: {
+          ref: 'id',
+          attributes: ['name']
+        },
+        pets: {
+          ref: 'id',
+          attributes: ['name']
+        }
+      }).serialize(dataSet);
+
+      expect(json).to.have.property('included').that.is
+        .an('array')
+        .eql([
+          {"type":"hobbies","id":"1","attributes":{"name":"Snowboarding"}},
+          {"type":"pets","id":"1","attributes":{"name":"Juice"}}
+        ]);
+
+      done(null, json);
+    });
+
+    it('should only include specified resources when some are requested', function (done) {
+      var dataSet = {
+        id: '54735750e16638ba1eee59cb',
+        'first-name': 'Brian',
+        'last-name': 'Fink',
+        gender: 'male',
+        hobbies: [{
+          id: '1',
+          name: 'Snowboarding'
+        }],
+        pets: [{
+          id: '1',
+          name: 'Juice',
+          species: 'cat'
+        }],
+      };
+
+      var req = { query: { include: 'pets', pets:'name' } };
+
+      var json = new JSONAPISerializer('users', {
+        attributes: ['first-name', 'last-name', 'gender', 'hobbies', 'pets'],
+        hobbies: {
+          ref: 'id',
+          attributes: ['name']
+        },
+        pets: {
+          ref: 'id',
+          attributes: ['name']
+        }
+      }).serialize(dataSet, req);
+
+      expect(json).to.have.property('included').that.is
+        .an('array')
+        .eql([
+          {"type":"pets","id":"1","attributes":{"name":"Juice"}}
+        ]);
+
+      done(null, json);
+    });
+  });
 });
